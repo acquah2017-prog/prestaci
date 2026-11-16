@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrestaCI - Marketplace Nationale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen">
+
+    <header class="bg-blue-600 text-white p-4 shadow-md flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold">🇨🇮 PrestaCI</h1>
+            <p class="text-xs opacity-90">Plateforme nationale de services</p>
+        </div>
+        <div id="userHeaderInfo" class="hidden text-right text-xs">
+            <span id="headerUserName" class="font-bold block"></span>
+            <button onclick="deconnecter()" class="underline text-blue-200">Se déconnecter</button>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 max-w-md mx-auto w-full">
+
+        <!-- AUTH -->
+        <div id="authSection" class="space-y-4">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex border-b pb-2">
+                    <button onclick="switchAuthTab('login')" id="tabLoginBtn" class="flex-1 font-bold text-blue-600 border-b-2 border-blue-600 pb-1 text-sm">Connexion</button>
+                    <button onclick="switchAuthTab('register')" id="tabRegisterBtn" class="flex-1 font-semibold text-slate-400 pb-1 text-sm">Inscription</button>
+                </div>
+
+                <!-- Formulaire Connexion -->
+                <div id="formLogin" class="space-y-3">
+                    <input type="text" id="logTel" placeholder="Numéro de téléphone" class="w-full p-3 border rounded-xl text-sm outline-none">
+                    <div class="relative">
+                        <input type="password" id="logPass" placeholder="Mot de passe" class="w-full p-3 border rounded-xl text-sm outline-none pr-12">
+                        <button type="button" onclick="togglePassword('logPass', this)" class="absolute right-3 top-3 text-xs text-blue-600 font-bold">👁️ Voir</button>
+                    </div>
+                    <button onclick="connecter()" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl shadow">Se connecter</button>
+                </div>
+
+                <!-- Formulaire Inscription -->
+                <div id="formRegister" class="hidden space-y-3">
+                    <input type="text" id="regNom" placeholder="Nom et Prénom" class="w-full p-3 border rounded-xl text-sm">
+                    <input type="text" id="regTel" placeholder="Numéro de téléphone" class="w-full p-3 border rounded-xl text-sm">
+                    
+                    <div class="relative">
+                        <input type="password" id="regPass" placeholder="Mot de passe" class="w-full p-3 border rounded-xl text-sm pr-12">
+                        <button type="button" onclick="togglePassword('regPass', this)" class="absolute right-3 top-3 text-xs text-blue-600 font-bold">👁️ Voir</button>
+                    </div>
+                    
+                    <select id="regRole" onchange="toggleMetierField()" class="w-full p-3 border rounded-xl text-sm bg-white">
+                        <option value="client">Client (Je cherche un service)</option>
+                        <option value="prestataire">Prestataire / Artisan (3 contacts offerts)</option>
+                    </select>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <select id="regVille" class="p-3 border rounded-xl text-sm bg-white">
+                            <option value="Abidjan">Abidjan</option>
+                            <option value="Grand-Bassam">Grand-Bassam</option>
+                            <option value="Bouaké">Bouaké</option>
+                            <option value="Yamoussoukro">Yamoussoukro</option>
+                        </select>
+                        <input type="text" id="regQuartier" placeholder="Quartier" class="w-full p-3 border rounded-xl text-sm">
+                    </div>
+
+                    <div id="champMetier" class="hidden space-y-3">
+                        <input type="text" id="regMetier" placeholder="Votre Métier (ex: Plombier)" class="w-full p-3 border rounded-xl text-sm">
+                        <textarea id="regDesc" placeholder="Description de vos services..." class="w-full p-3 border rounded-xl text-sm h-20"></textarea>
+                    </div>
+
+                    <button onclick="inscrire()" class="w-full bg-emerald-600 text-white font-bold p-3 rounded-xl shadow">S'inscrire</button>
+                </div>
+                <p id="authMsg" class="text-center text-xs font-medium"></p>
+            </div>
+        </div>
+
+        <!-- ESPACE CLIENT -->
+        <div id="clientSpace" class="hidden space-y-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                <h2 class="text-base font-bold text-slate-700">Publier un besoin</h2>
+                <input type="text" id="cMetier" placeholder="Métier recherché (ex: Plombier)" class="w-full p-3 border rounded-xl text-sm">
+                <div class="grid grid-cols-2 gap-2">
+                    <select id="CVille" class="p-3 border rounded-xl text-sm bg-white">
+                        <option value="Abidjan">Abidjan</option>
+                        <option value="Grand-Bassam">Grand-Bassam</option>
+                        <option value="Bouaké">Bouaké</option>
+                        <option value="Yamoussoukro">Yamoussoukro</option>
+                    </select>
+                    <input type="text" id="CQuartier" placeholder="Quartier" class="w-full p-3 border rounded-xl text-sm">
+                </div>
+                <textarea id="CDesc" placeholder="Décrivez votre besoin..." class="w-full p-3 border rounded-xl text-sm h-20"></textarea>
+                <button onclick="posterDemande()" class="w-full bg-blue-600 text-white font-bold p-3 rounded-xl shadow">Publier l'annonce</button>
+                <p id="clientMsg" class="text-center text-xs"></p>
+            </div>
+        </div>
+
+        <!-- ESPACE PRO -->
+        <div id="proSpace" class="hidden space-y-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <div class="flex justify-between items-center bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold">Mon Compte Pro</p>
+                        <span id="proCredits" class="text-xs font-bold text-blue-600">Chargement...</span>
+                    </div>
+                    <div class="space-y-1 text-right">
+                        <button onclick="lancerPasserellePaiement('credits', 2000)" class="block bg-emerald-600 text-white text-[10px] font-bold px-2 py-1.5 rounded shadow">Pack 5 Contacts (2000f)</button>
+                        <button onclick="lancerPasserellePaiement('abo', 5000)" class="block bg-blue-600 text-white text-[10px] font-bold px-2 py-1.5 rounded shadow">Abo Mensuel (5000f)</button>
+                    </div>
+                </div>
+
+                <h2 class="text-base font-bold text-slate-700">Missions disponibles</h2>
+                <div id="listeMissionsPro" class="space-y-3"></div>
+            </div>
+        </div>
+
+        <!-- ESPACE ADMIN -->
+        <div id="adminSpace" class="hidden space-y-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="text-base font-bold text-red-600">Administration PrestaCI</h2>
+                <div id="adminStats" class="grid grid-cols-2 gap-3"></div>
+                
+                <h3 class="text-sm font-bold text-slate-700 mt-4">Gestion des Utilisateurs</h3>
+                <div id="adminPrestataires" class="space-y-2"></div>
+            </div>
+        </div>
+
+    </main>
+
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let currentUser = JSON.parse(localStorage.getItem('prestaci_user')) || null;
+
+    function initApp() {
+        if (currentUser) {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('userHeaderInfo').classList.remove('hidden');
+            document.getElementById('headerUserName').innerText = `${currentUser.nom} (${currentUser.role.toUpperCase()})`;
+
+            if (currentUser.role === 'client') {
+                document.getElementById('clientSpace').classList.remove('hidden');
+            } else if (currentUser.role === 'prestataire') {
+                document.getElementById('proSpace').classList.remove('hidden');
+                chargerInfosPro();
+                chargerMissionsPro();
+            } else if (currentUser.role === 'admin') {
+                document.getElementById('adminSpace').classList.remove('hidden');
+                chargerAdminData();
+            }
+        } else {
+            document.getElementById('authSection').classList.remove('hidden');
+        }
+    }
+
+    function switchAuthTab(tab) {
+        if(tab === 'login') {
+            document.getElementById('formLogin').classList.remove('hidden');
+            document.getElementById('formRegister').classList.add('hidden');
+            document.getElementById('tabLoginBtn').className = 'flex-1 font-bold text-blue-600 border-b-2 border-blue-600 pb-1 text-sm';
+            document.getElementById('tabRegisterBtn').className = 'flex-1 font-semibold text-slate-400 pb-1 text-sm';
+        } else {
+            document.getElementById('formLogin').classList.add('hidden');
+            document.getElementById('formRegister').classList.remove('hidden');
+            document.getElementById('tabRegisterBtn').className = 'flex-1 font-bold text-blue-600 border-b-2 border-blue-600 pb-1 text-sm';
+            document.getElementById('tabLoginBtn').className = 'flex-1 font-semibold text-slate-400 pb-1 text-sm';
+        }
+    }
+
+    // Fonction pour afficher/masquer le mot de passe
+    function togglePassword(fieldId, btn) {
+        const input = document.getElementById(fieldId);
+        if (input.type === "password") {
+            input.type = "text";
+            btn.innerText = "🙈 Cacher";
+        } else {
+            input.type = "password";
+            btn.innerText = "👁️ Voir";
+        }
+    }
+
+    function toggleMetierField() {
+        const role = document.getElementById('regRole').value;
+        const champ = document.getElementById('champMetier');
+        if(role === 'prestataire') champ.classList.remove('hidden');
+        else champ.classList.add('hidden');
+    }
+
+    async function inscrire() {
+        const payload = {
+            nom: document.getElementById('regNom').value,
+            telephone: document.getElementById('regTel').value,
+            mot_de_passe: document.getElementById('regPass').value,
+            role: document.getElementById('regRole').value,
+            ville: document.getElementById('regVille').value,
+            quartier: document.getElementById('regQuartier').value,
+            metier: document.getElementById('regMetier').value,
+            description: document.getElementById('regDesc').value
+        };
+        const res = await fetch(`${API_URL}/register`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const msg = document.getElementById('authMsg');
+        if(res.ok) {
+            msg.className = 'text-center text-xs font-medium text-emerald-600';
+            msg.innerText = "Inscription réussie ! 3 contacts offerts.";
+            switchAuthTab('login');
+        } else {
+            msg.className = 'text-center text-xs font-medium text-red-600';
+            msg.innerText = data.erreur;
+        }
+    }
+
+    async function connecter() {
+        const telephone = document.getElementById('logTel').value;
+        const mot_de_passe = document.getElementById('logPass').value;
+
+        const res = await fetch(`${API_URL}/login`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ telephone, mot_de_passe })
+        });
+        const data = await res.json();
+        if(res.ok) {
+            currentUser = { userId: data.userId, nom: data.nom, role: data.role, token: data.token };
+            localStorage.setItem('prestaci_user', JSON.stringify(currentUser));
+            initApp();
+            location.reload();
+        } else {
+            document.getElementById('authMsg').className = 'text-center text-xs font-medium text-red-600';
+            document.getElementById('authMsg').innerText = data.erreur;
+        }
+    }
+
+    function deconnecter() {
+        localStorage.removeItem('prestaci_user');
+        location.reload();
+    }
+
+    async function posterDemande() {
+        const payload = {
+            client_id: currentUser.userId,
+            metier_recherche: document.getElementById('cMetier').value,
+            ville: document.getElementById('CVille').value,
+            quartier: document.getElementById('CQuartier').value,
+            description_besoin: document.getElementById('CDesc').value
+        };
+        const res = await fetch(`${API_URL}/demandes`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        const msg = document.getElementById('clientMsg');
+        if(res.ok) {
+            msg.className = 'text-center text-xs font-medium text-emerald-600';
+            msg.innerText = "Demande publiée avec succès !";
+            document.getElementById('cMetier').value = '';
+            document.getElementById('CDesc').value = '';
+        } else {
+            msg.className = 'text-center text-xs font-medium text-red-600';
+            msg.innerText = data.erreur;
+        }
+    }
+
+    async function chargerInfosPro() {
+        const res = await fetch(`${API_URL}/prestataires`);
+        const pros = await res.json();
+        const monPro = pros.find(p => p.user_id === currentUser.userId);
+        if(monPro) {
+            let statusText = monPro.abonnement_actif ? "Abonnement Illimité Actif" : `${monPro.solde_credits} contacts d'essai restants`;
+            document.getElementById('proCredits').innerHTML = `${statusText}<br><span class="text-[10px] text-slate-400">Statut: ${monPro.statut_validation}</span>`;
+        }
+    }
+
+    async function chargerMissionsPro() {
+        const res = await fetch(`${API_URL}/demandes`);
+        const demandes = await res.json();
+        const container = document.getElementById('listeMissionsPro');
+        container.innerHTML = '';
+        if(demandes.length === 0) {
+            container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Aucune mission disponible.</p>';
+            return;
+        }
+        demandes.forEach(d => {
+            container.innerHTML += `
+                <div class="border border-slate-200 rounded-xl p-3 bg-slate-50 space-y-2 text-xs">
+                    <div class="flex justify-between font-bold text-blue-600">
+                        <span>${d.metier_recherche}</span>
+                        <span class="text-slate-500">${d.client_ville} (${d.quartier})</span>
+                    </div>
+                    <p class="text-slate-600">${d.description_besoin}</p>
+                    <button onclick="debloquer(${d.id})" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg shadow">Débloquer contact</button>
+                </div>
+            `;
+        });
+    }
+
+    async function debloquer(demandeId) {
+        const res = await fetch(`${API_URL}/demandes/${demandeId}/debloquer`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ prestataire_id: currentUser.userId })
+        });
+        const data = await res.json();
+        if(res.ok) {
+            alert(`🎉 Contact Débloqué !\n\nNom: ${data.client.nom}\nTéléphone: ${data.client.telephone}\nBesoin: ${data.client.besoin}`);
+            chargerInfosPro();
+        } else {
+            alert("⚠️ " + data.erreur);
+        }
+    }
+
+    async function lancerPasserellePaiement(type, montant) {
+        let operateur = prompt("Choisissez votre opérateur Mobile Money :\n1. Wave\n2. Orange Money", "Wave");
+        if(!operateur) return;
+
+        let numeroPaiement = prompt(`Entrez votre numéro ${operateur} pour recevoir la notification USSD :`, "0700000000");
+        if(!numeroPaiement) return;
+
+        alert(`📱 Notification USSD envoyée sur le ${numeroPaiement} (${operateur}).\nVeuillez valider avec votre code secret PIN...`);
+
+        const res = await fetch(`${API_URL}/transactions`, {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ 
+                user_id: currentUser.userId, 
+                type: type === 'credits' ? 'achat_credits' : 'abonnement', 
+                montant_fcfa: montant, 
+                operateur 
+            })
+        });
+        const data = await res.json();
+        if(res.ok) {
+            alert(`✅ Paiement validé par l'opérateur !\nRef: ${data.reference}\nVotre compte a été mis à jour automatiquement.`);
+            chargerInfosPro();
+        } else {
+            alert("❌ Échec de la transaction.");
+        }
+    }
+
+    async function chargerAdminData() {
+        const res = await fetch(`${API_URL}/admin/data`);
+        const data = await res.json();
+        
+        document.getElementById('adminStats').innerHTML = `
+            <div class="bg-slate-50 p-3 rounded-xl border text-center">
+                <p class="text-xs text-slate-500">Chiffre d'Affaires</p>
+                <p class="text-sm font-bold text-emerald-600">${data.chiffre_affaires_fcfa} FCFA</p>
+            </div>
+            <div class="bg-slate-50 p-3 rounded-xl border text-center">
+                <p class="text-xs text-slate-500">Utilisateurs</p>
+                <p class="text-sm font-bold text-blue-600">${data.utilisateurs}</p>
+            </div>
+        `;
+
+        const proContainer = document.getElementById('adminPrestataires');
+        proContainer.innerHTML = '';
+        if(data.prestataires.length === 0) {
+            proContainer.innerHTML = '<p class="text-xs text-slate-400">Aucun prestataire inscrit.</p>';
+            return;
+        }
+        data.prestataires.forEach(p => {
+            proContainer.innerHTML += `
+                <div class="border p-2 rounded-lg bg-slate-50 flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-bold">${p.nom} (${p.metier})</p>
+                        <p class="text-slate-500">Statut: <span class="${p.statut_validation === 'valide' ? 'text-green-600 font-bold' : 'text-amber-600'}">${p.statut_validation}</span></p>
+                    </div>
+                    <div class="space-x-1">
+                        ${p.statut_validation !== 'valide' ? `<button onclick="validerPro(${p.user_id})" class="bg-blue-600 text-white px-2 py-1 rounded text-xs">Valider</button>` : ''}
+                        <button onclick="supprimerUtilisateur(${p.user_id})" class="bg-red-500 text-white px-2 py-1 rounded text-xs">Supprimer</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function validerPro(userId) {
+        const res = await fetch(`${API_URL}/admin/prestataires/${userId}/valider`, { method: 'PATCH' });
+        if(res.ok) {
+            alert("Prestataire validé avec succès !");
+            chargerAdminData();
+        } else {
+            alert("Erreur lors de la validation.");
+        }
+    }
+
+    async function supprimerUtilisateur(userId) {
+        if(!confirm("Voulez-vous vraiment supprimer cet utilisateur de PrestaCI ?")) return;
+        
+        const res = await fetch(`${API_URL}/admin/users/${userId}`, { method: 'DELETE' });
+        if(res.ok) {
+            alert("Utilisateur supprimé avec succès.");
+            chargerAdminData();
+        } else {
+            alert("Erreur lors de la suppression.");
+        }
+    }
+
+    initApp();
+</script>
+
+</body>
+</html>
