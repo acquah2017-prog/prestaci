@@ -18,6 +18,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
   }
 });
 
+// Création de la table et insertion de l'administrateur personnalisé
 db.serialize(() => {
   db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -25,7 +26,9 @@ db.serialize(() => {
     password TEXT,
     role TEXT DEFAULT 'user',
     status TEXT DEFAULT 'pending'
-  )`);
+  )`, () => {
+    db.run(`INSERT OR IGNORE INTO users (phone, password, role, status) VALUES ('0768356435', 'Cancer1993.', 'admin', 'approved')`);
+  });
 });
 
 app.get('/', (req, res) => {
